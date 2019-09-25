@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd	
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd"
+	xmlns:tx="http://www.springframework.org/schema/tx">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" /> 
+	<resources mapping="/image/**" location="/resources/image/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	 <beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	<!-- 트랜잭션 해주기 위한 bean이 없으면 사용 불가능 -->
+	<!-- <tx:annotation-driven transaction-manager="transactionManager"/>  -->
+	<tx:annotation-driven proxy-target-class="true"/> 
+	<!-- Service 등록 -->
+	<beans:bean id="boardListService" class="com.spring_web.bbs.service.BoardListServiceImpl"></beans:bean>
+	<!-- DAO 등록 -->
+	<beans:bean id="boardListDAO" class="com.spring_web.bbs.repository.BoardListDAOImpl"></beans:bean>
+	
+	<!-- 이거는 로그인 된 상태에서 로그인창을 갈때 다시 메인으로 보내주기위해 사용할거
+	<bean id="loginAfterInterceptor" class="com.spring_web.bbs.exception.LoginAfterInterceptor"/>
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="login"/>
+		</mvc:interceptor>
+	</mvc:interceptors> -->
+	
+	<!-- com.spring_web.bbs 이 아래에서 찾게 ?????????????? .으로 하면 됐었는데 안됨 -->
+	<context:component-scan base-package="com.spring_web.bbs" />
+	
+</beans:beans>

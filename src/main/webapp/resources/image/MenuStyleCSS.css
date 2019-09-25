@@ -1,0 +1,31 @@
+@charset "utf-8";
+a:link {
+	color: black;
+}
+
+a:visited {
+	color: black;
+}
+
+a:hover, li:hover {
+	color: blue;
+	background-color: #5E90FF;
+}
+
+a:active {
+	color: yellow;
+}
+
+a {
+	text-decoration: none;
+	text-shadow: none;
+}
+
+ul.menu {
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+	max-width: 250px;
+	width: 100%;
+	line-height: 250%;
+}

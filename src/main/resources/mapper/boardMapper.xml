@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 여기안에서 쿼리 작성하면 됨 -->
+<mapper namespace="org.mapper.boardMapper">
+
+	<resultMap id="user" type="com.spring_web.bbs.vo.UserVO">
+		<result property="userId" column="user_id" />
+		<result property="userPw" column="user_pw" />
+		<result property="userName" column="user_name" />
+		<result property="joinTime" column="user_join_time" />
+		<result property="userIdQustion" column="user_id_question" />
+		<result property="userIdAnswer" column="user_id_answer" />
+		<result property="userJender" column="user_Jender" />
+	</resultMap>
+
+	<resultMap id="noticeboard"
+		type="com.spring_web.bbs.vo.BoardListVO">
+		<result property="boardNo" column="board_no" />
+		<result property="boardTitle" column="board_title" />
+		<result property="boardText" column="board_text" />
+		<result property="boardUser" column="board_user" />
+		<result property="boardTime" column="board_time" />
+		<result property="boardCount" column="board_view" />
+		<result property="boardDateTime" column="board_datetime" />
+	</resultMap>
+
+	<resultMap id="comment"
+		type="com.spring_web.bbs.vo.CommentVO">
+		<result property="boardNo" column="board_no" />
+		<result property="commentNo" column="comment_no" />
+		<result property="commentUser" column="comment_user" />
+		<result property="commentText" column="comment_text" />
+		<result property="commentTime" column="comment_time" />
+	</resultMap>
+
+	<!-- 회원가입 -->
+	<insert id="join">
+	<![CDATA[
+		insert
+		into
+		user
+		(user_id, user_pw, user_name, user_id_question, user_id_answer, user_jender)
+		values(#{userId}, #{userPw}, #{userName}, #{userIdQustion}, #{userIdAnswer}, #{userJender})
+		]]>
+	</insert>
+	
+	<!-- 아이디, 비밀번호 찾기 -->
+	<select id="findId" resultMap="user">
+	<![CDATA[
+		select user_id, user_pw
+		from
+		user
+		where user_id_question = #{userIdQustion} and user_id_answer = #{userIdAnswer}
+		]]>
+	</select>
+
+	<!-- 로그인 체크 -->
+	<select id="loginCheck" resultMap="user">
+	<![CDATA[
+		select *
+		from
+		user
+		where user_id = #{userId} and user_pw = #{userPw}
+		]]>
+	</select>
+
+	<!-- 유저 정보 불러오기 -->
+	<select id="myPage" resultMap="user">
+	<![CDATA[
+		select *
+		from
+		user
+		where user_id = #{userId}
+	]]>
+	</select>
+
+	<!-- 회원 정보 수정 -->
+	<update id="updateInfo">
+	<![CDATA[
+		update
+		user
+		set
+		user_pw = #{userPw}
+		where user_id =
+		#{userId}
+	]]>
+	</update>
+	<!-- 회원 탈퇴 -->
+	<delete id="memberWithdrawal">
+	<![CDATA[
+		delete
+		from
+		uesr
+		where user_pw =
+		#{userPw}
+	]]>
+	</delete>
+
+	<!-- 게시글 검색하기 -->
+	<select id="search" resultMap="noticeboard">
+		<![CDATA[ 
+		select * 
+		from 
+		]]> 
+		<include refid="boardType"/>
+		<![CDATA[ 
+		where 
+		board_text like CONCAT('%', #{searchName}, '%') 
+		or board_title like CONCAT('%', #{searchName}, '%')
+		ORDER BY board_no DESC; 
+		]]>
+	</select>
+
+	<!-- 글 목록 불러오기 -->
+	<select id="boardList" resultMap="noticeboard">
+	<![CDATA[
+		SELECT *
+		FROM
+		]]>
+		<include refid="boardType"/>
+		<![CDATA[
+		ORDER BY
+		board_no DESC
+		]]>
+	</select>
+	
+	<!-- 조회순 베스트 글 가져오기 -->
+	<select id="bestList" resultMap="noticeboard">
+	<![CDATA[
+		SELECT *
+		FROM
+		]]>
+		<include refid="boardType"/>
+		<![CDATA[
+		ORDER BY
+		board_view DESC LIMIT 3
+		]]>
+	</select>
+	
+	<sql id="boardType">
+		<if test="boardType != null">
+			<if test="boardType == 0">
+				noticeboard
+			</if>
+			<if test="boardType == 1">
+				tipboard
+			</if>
+			<if test="boardType == 2">
+				qusetionboard
+			</if>
+			<if test="boardType == 3">
+				freeboard
+			</if>
+		</if>
+	</sql>
+	
+
+	<!-- 게시판 추가하기 C -->
+	<insert id="insertBoard">
+	<![CDATA[
+		insert
+		into
+		]]>
+		<include refid="boardType"/>
+		<![CDATA[
+		(board_title, board_text, board_user)
+		values(#{boardTitle}, #{boardText}, #{boardUser})
+		]]>
+	</insert> 
+
+
+	<!-- 게시판 수정하기 U -->
+	<update id="updateBoard">
+	<![CDATA[
+		update
+		]]>
+		<include refid="boardType"/>
+		<![CDATA[
+		set
+		board_title = #{boardTitle},
+		board_text = #{boardText}
+		where
+		board_no = #{boardNo}
+		]]>
+	</update>
+
+	<!-- 게시판 상세보기 R -->
+	<select id="getRead" resultMap="noticeboard">
+		<![CDATA[
+		SELECT *
+		FROM
+		]]>
+		<include refid="boardType"/>
+		<![CDATA[
+		WHERE
+		board_no = #{boardNo}
+		]]>
+	</select>
+
+	<!-- 게시판 삭제하기 D -->
+	<delete id="deleteBoard">
+	<![CDATA[
+		delete
+		from
+		noticeboard
+		where board_no = #{boardNo}
+		]]>
+	</delete>
+
+	<!-- 댓글 불러오기 R -->
+	<select id="getComment" resultMap="comment">
+		<![CDATA[
+		SELECT board_no, comment_no, comment_user, comment_text,
+		comment_time
+		FROM
+		comment
+		WHERE
+		board_no = #{boardNo}
+		]]>
+	</select>
+
+	<!-- 댓글 추가하기 C -->
+	<insert id="insertComment">
+	<![CDATA[
+		insert
+		into
+		comment
+		(board_no, comment_user,
+		comment_text)
+		values(#{boardNo},#{commentUser}, #{commentText})
+		]]>
+	</insert>
+
+	<!-- 댓글 수정하기 U -->
+	<update id="updateComment">
+	<![CDATA[
+		update
+		comment
+		set
+		comment_text = #{boardTitle}
+		where
+		comment_no = #{commentNo}
+		]]>
+	</update>
+
+	<!-- 댓글 삭제하기 D -->
+	<delete id="deleteComment">
+	<![CDATA[
+		delete
+		from
+		comment
+		where comment_no = #{commentNo}
+		]]>
+	</delete>
+
+	<!-- 조회수 증가 -->
+	<update id="countView">
+	<![CDATA[
+		UPDATE
+		]]>
+		<include refid="boardType"/>
+		<![CDATA[
+		set
+		board_view = board_view + 1
+		where board_no =
+		#{boardNo}
+		]]>
+	</update>
+
+</mapper>
