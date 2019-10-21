@@ -24,6 +24,7 @@ import com.spring_web.bbs.service.BoardListService;
 import com.spring_web.bbs.service.BoardListServiceImpl;
 import com.spring_web.bbs.vo.BoardListVO;
 import com.spring_web.bbs.vo.CommentVO;
+import com.spring_web.bbs.vo.PagingVO;
 import com.spring_web.bbs.vo.UserVO;
 
 /**
@@ -199,16 +200,33 @@ public class HomeController {
 
 	// 검색기능
 	@RequestMapping(value = "/search", method = { RequestMethod.POST, RequestMethod.GET })
-	public ModelAndView search(@RequestParam("searchName") String searchName,
+	public ModelAndView search(@RequestParam("searchName") String searchName,@RequestParam(defaultValue="1") int curPage,
 			@RequestParam("searchType") int searchType, ModelAndView mv) throws Exception {
-		System.out.println("검색어 : " + searchName);
 
 		List<BoardListVO> searchList = boardListService.searchService(searchName, searchType);
-
-		System.out.println("검색결과 갯수 : " + boardListService.searchService(searchName, searchType).size() + "개");
-
+		PagingVO paging = new PagingVO(3,7,searchList.size() ,curPage);
+		
+		System.out.println("검색결과 갯수 : " + searchList.size() + "개");
+		System.out.println("총 페이지 개수 : "+paging.getPageCount());
+		  System.out.println("페이지 시작 숫자  : "+paging.getStartPage());
+		  System.out.println("페이지 마지막 숫자  : "+paging.getEndPage());
+		  System.out.println("Pre 표시 여부  : "+paging.isPre());
+		  System.out.println("Next 표시 여부   : "+paging.isNext());
+		  System.out.println("글 범위 시작 번호   : "+paging.getStartWriting());
+		  System.out.println("글 범위 끝 번호   : "+paging.getEndWriting());
+		  System.out.println("현재 페이지 위치   : "+paging.getCurPage());
+		  if(paging.isPre())
+			   System.out.print(" Pre ");
+			  for(int i = paging.getStartPage(); i <= paging.getEndPage();i++)
+			  {
+			   System.out.print(" "+i+" ");
+			  }
+			  if(paging.isNext())
+			   System.out.print(" Next ");
 		mv.addObject("searchList", searchList);
 		mv.addObject("searchType", searchType);
+		mv.addObject("page", paging);
+		mv.addObject("curPage", curPage);
 		mv.setViewName("search");
 
 		return mv;
@@ -216,12 +234,18 @@ public class HomeController {
 
 	// 게시판 메인
 	@RequestMapping(value = "/main", method = { RequestMethod.POST, RequestMethod.GET })
-	public ModelAndView main(ModelAndView mv, HttpSession session) throws Exception {
+	public ModelAndView main(ModelAndView mv, HttpSession session,@RequestParam(defaultValue="1") int curPage) throws Exception {
 		int boardType = 0;
 		List<BoardListVO> boardList = boardListService.getBoardListService(boardType);
+		PagingVO paging = new PagingVO(5,7,boardList.size() ,curPage);
 		System.out.println("공지사항 갯수 : " + boardList.size() + "개");
-
+		if(curPage > paging.getEndPage()) {
+			curPage = 1;
+			mv.setViewName("redirect:main");
+		}
 		mv.addObject("listboard", boardList); // boardlist에 있는 데이터 저장
+		mv.addObject("page", paging);
+		mv.addObject("curPage", curPage);
 		mv.setViewName("main"); // 뷰를 main으로 설정
 
 		return mv; // boardlist전달
@@ -313,22 +337,19 @@ public class HomeController {
 		}*/
 		
 		boardListService.insertService(vo, boardType);
-		if(boardType == 0) {
-			
+		if(boardType == 0){
 			mv.setViewName("redirect:main");
-			System.out.println("등록 완료");
+			return mv;
 		} else if(boardType == 1) {
-	
-		mv.setViewName("redirect:TipBoard");
+			mv.setViewName("redirect:TipBoard");
+			return mv;
 		}else if(boardType == 2) {
-	
 			mv.setViewName("redirect:QuestionBoard");
-			}else if(boardType == 3) {
-		/*		mv.addObject("boardType",boardType);*/
-				mv.setViewName("redirect:FreeBoard");
-			}
-		System.out.println("등록 완료");
-		return mv;
+			return mv;
+		}else {
+			mv.setViewName("redirect:FreeBoard");
+			return mv;
+		}
 	}
 
 	// 글 수정 화면 Post_U
@@ -350,7 +371,7 @@ public class HomeController {
 		
 		boardListService.updateService(vo, boardType);
 		System.out.println("수정 완료");
-		mv.setViewName("redirect:main");
+		mv.setViewName("redirect:read?boardNo="+vo.getBoardNo()+"&boardType="+boardType);
 		return mv;
 	}
 
@@ -362,14 +383,25 @@ public class HomeController {
 		if (userId == null) {
 			System.out.println("작성자 :  + /*vo.getBoard_user()*/ , 삭제자 : " + userId);
 			return "redirect:main";
+		}else if(boardType == 0){
+			System.out.println("삭제 완료");
+			return "redirect:main";
+		} else if(boardType == 1) {
+			System.out.println("삭제 완료");
+			return "redirect:TipBoard";
+		}else if(boardType == 2) {
+			System.out.println("삭제 완료");
+			return "redirect:QuestionBoard";
+		}else {
+			System.out.println("삭제 완료");
+			return "redirect:FreeBoard";
 		}
-		System.out.println("삭제 완료");
-		return "redirect:main";
+		
 	}
 
 	// 댓글 추가 Comment_C
 	@RequestMapping(value = "/comment", method = RequestMethod.POST)
-	public String insertComment(@ModelAttribute CommentVO vo, @RequestParam("boardNo") int boardNo, HttpSession session,
+	public String insertComment(@ModelAttribute CommentVO vo, @RequestParam("boardNo") int boardNo, HttpSession session,@RequestParam("boardType") int boardType,
 			ModelAndView mv) throws Exception {
 		/*
 		 * String userId = (String) session.getAttribute("userId"); String alert = null;
@@ -380,12 +412,12 @@ public class HomeController {
 		boardListService.insertCommentService(vo, boardNo, session);
 
 		System.out.println("댓글 작성 완료");
-		return "redirect:main";
+		return "redirect:read?boardNo=" + boardNo+"&boardType="+boardType;
 	}
 
 	// 댓글 수정 Comment_U
 	@RequestMapping(value = "/updateComment", method = RequestMethod.GET)
-	public String updateCommentCheck(@ModelAttribute CommentVO vo, @RequestParam("boardNo") int boardNo,
+	public String updateCommentCheck(@ModelAttribute CommentVO vo, @RequestParam("boardNo") int boardNo,@RequestParam("boardType") int boardType,
 			HttpSession session) throws Exception {
 		String userId = (String) session.getAttribute("userId");
 		boardListService.updateCommentService(vo);
@@ -394,21 +426,23 @@ public class HomeController {
 			return "redirect:main";
 		}
 		System.out.println("댓글 수정 완료");
-		return "redirect:read?boardNo=" + boardNo;
+		return "redirect:read?boardNo=" + boardNo+"&boardType="+boardType;
 	}
 
 	// 댓글 삭제 Comment_D
 	@RequestMapping(value = "/deleteComment", method = RequestMethod.GET)
-	public String deleteCommentCheck(@RequestParam("boardNo") int boardNo, @RequestParam("commentNo") int commentNo,
-			HttpSession session) throws Exception {
+	public String deleteCommentCheck(@RequestParam("boardNo") int boardNo, @RequestParam("commentNo") int commentNo, @RequestParam("boardType") int boardType
+			,HttpSession session) throws Exception {
 		String userId = (String) session.getAttribute("userId");
 		boardListService.deleteCommentService(commentNo, session);
 		if (userId == null) {
 			System.out.println("삭제자 : " + userId);
 			return "redirect:main";
-		}
+		}else {
 		System.out.println("댓글 삭제 완료");
-		return "redirect:main";
+		
+		return "redirect:read?boardNo=" + boardNo+"&boardType="+boardType;
+		}
 	}
 
 	

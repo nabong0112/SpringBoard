@@ -142,6 +142,22 @@ li.Free {
 				<button id="myMenu" class="dropbtn" onclick="javascript:gowrite();">글쓰기</button>
 			</div>
 		</c:if>
+		<c:if test="${page.startPage != curPage}">
+					<a href="main?curPage=${page.startPage}">처음으로</a>
+				</c:if>
+				<c:forEach var='i' begin="${page.startPage}" end="${page.endPage}">
+						<c:choose>
+						<c:when test="${ i == curPage }">
+							<b><c:out value="${i}"/></b>
+						</c:when>
+						<c:otherwise>
+						<a href="main?curPage=${i}"><c:out value="${i}"/></a>
+						</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				<c:if test="${page.endPage != curPage}">
+					<a href="main?curPage=${page.endPage}">끝으로</a>
+				</c:if>
 		<!-- <input type="button" name="write" style="height: 50px; width: 100px;"  onClick= "javascript:write();">글쓰기</ -->
 	</div>
 			</div>

@@ -32,7 +32,7 @@
 				<label for="userIdAnswer">답 : </label> 
 				<input type="text" size="25" id="userIdAnswer" name="userIdAnswer" placeholder="질문에 맞는 답을 적어주세요"><br>	
 				<input type="button" value="   가입하기   " onclick="javascript:check();">
-				<c:if test ="${msg eq 'overlepId'}">
+				<c:if test ="${check eq 'overlepId'}">
 						<br><p style="color: red">중복된 아이디입니다! 다른 아이디를 입력해주세요!</p>
 					</c:if>
 				<br> <b>앗 !</b> 생각해보니 이미 계정이 있으신가요?<a href="login"><b>로그인 하러 가기</b></a><br>

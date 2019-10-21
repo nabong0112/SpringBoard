@@ -43,7 +43,7 @@
 	            // 모드 탭(Editor | HTML | TEXT) 사용 여부
 	            bUseModeChanger : true,
 	        }
-	    },
+	    }
 	    //수정버튼
 	    fOnAppLoad : function(){
 	    	obj.getById["boardText"].exec("PASTE_HTML",[]);
@@ -129,7 +129,7 @@
 				<div id="comment-border"
 					style="align-content: center; border: 1px solid #dddddd;">
 					<h3 align="center" style="text-align: center; height: 10px;">댓글창</h3>
-					<form method="post" action="comment?boardNo=${list.boardNo}"
+					<form method="post" action="comment?boardNo=${list.boardNo}&boardType=${boardType}"
 						style="margin: 0">
 						<table
 							style="text-align: center; border: 1px solid #dddddd; line-height: 2.4em; background-color: white;">

@@ -33,7 +33,26 @@
 		<result property="commentText" column="comment_text" />
 		<result property="commentTime" column="comment_time" />
 	</resultMap>
-
+	<!-- 페이징 -->
+	<select id ="paging" resultType="com.spring_web.bbs.vo.PagingVO">
+	<![CDATA[ <!-- 이거는 글 다섯개씩 부르게 할라고 -->
+	select *
+	from
+	]]>
+	<include refid="boardType"/>
+	<![CDATA[
+	where
+	board_no between #{writingStart} and #{writingEnd}
+	]]>
+	</select>
+	<select id ="pagingCount" resultType="com.spring_web.bbs.vo.PagingVO">
+	<![CDATA[ <!-- 이거는 글의 총 갯수를 구할라고 -->
+	select count(*)
+	from
+	]]>
+	<include refid="boardType"/>
+	</select>
+	
 	<!-- 회원가입 -->
 	<insert id="join">
 	<![CDATA[

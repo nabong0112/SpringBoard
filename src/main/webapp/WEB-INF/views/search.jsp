@@ -26,12 +26,13 @@
 		<%@ include file="include/header.jsp"%>
 		<div id="content"
 			style="background-color: #E3E3E3; height: 883px; width: 1900px; float: left;">
-			<div id="menu" style="background-color: #E3E3E3; height: 883px; width: 145px; float: left;">
-					<ul class="menu" style="padding-inline-start: 0px;">
-						<li><a href="TipBoard"> Tip 게시판</a></li>
-						<li><a href="QuestionBoard"> 질문 게시판</a></li>
-						<li><a href="FreeBoard"> 자유게시판</a></li>
-					</ul>
+			<div id="menu"
+				style="background-color: #E3E3E3; height: 883px; width: 145px; float: left;">
+				<ul class="menu" style="padding-inline-start: 0px;">
+					<li><a href="TipBoard"> Tip 게시판</a></li>
+					<li><a href="QuestionBoard"> 질문 게시판</a></li>
+					<li><a href="FreeBoard"> 자유게시판</a></li>
+				</ul>
 			</div>
 			<!-- ----------------------------------------------- 검색 하는곳 --------------------------------------------------------- -->
 			<div id="searchForm"
@@ -63,12 +64,15 @@
 					<c:choose>
 						<c:when test="${searchList.size() != 0}">
 
-							<c:forEach items='${searchList}' var='list'>
+							<c:forEach items='${searchList}' var='list'
+								begin="${page.startWriting}" end="${page.endWriting}">
 								<c:set var='i' value='${i+1}' />
 								<tr align="center">
-									<td width="80"><a href="read?boardNo=${list.boardNo}&boardType=${searchType}"><c:out
+									<td width="80"><a
+										href="read?boardNo=${list.boardNo}&boardType=${searchType}"><c:out
 												value='${searchList.size() - (i -1)}' /></a></td>
-									<td width="640"><a href="read?boardNo=${list.boardNo}&boardType=${searchType}"><c:out
+									<td width="640"><a
+										href="read?boardNo=${list.boardNo}&boardType=${searchType}"><c:out
 												value='${list.boardTitle}' /></a></td>
 									<td width="120"><c:out value='${list.boardUser}' /></td>
 									<td width="180"><c:out value='${list.boardTime}' /></td>
@@ -80,7 +84,7 @@
 						<c:otherwise>
 							<tr align="center">
 								<td colspan="5"><img src="image/Oh_sleep.gif"
-									align="middle"><br> <b> 검색된 글이 없습니다! </b></td>
+									align="middle"><br> <b> 검색된 글이 없습니다!</b></td>
 							</tr>
 						</c:otherwise>
 					</c:choose>
@@ -88,11 +92,29 @@
 				<div id="gowrite" align="center">
 					<c:if test="${sessionScope.userId != null}">
 						<br>
-						<button id="myMenu" class="dropbtn" onclick="javascript:gowrite();">글쓰기</button>
+						<button id="myMenu" class="dropbtn"
+							onclick="javascript:gowrite();">글쓰기</button>
 					</c:if>
 					<button id="myMenu" class="dropbtn" onclick="history.back();">뒤로가기</button>
 				</div>
-
+				<div align="center">
+					<%-- <c:if test="${page.isPre ne true}"><!-- 마지막 페이지 - 7 -->
+				<a href="main?PageNum=${page.endPage + page.pageSize}">이전페이지</a>	
+				</c:if> --%>
+					<c:forEach var='i' begin="${page.startPage}" end="${page.endPage}">
+						<c:choose>
+						<c:when test="${ i == curPage }">
+							<b><c:out value="${i}"/></b>
+						</c:when>
+						<c:otherwise>
+						<a href="search?searchType=0&searchName=d&curPage=${i}"><c:out value="${i}"/></a>
+						</c:otherwise>
+						</c:choose>
+					</c:forEach>
+					<%--  <c:if test="${page.isNext}"><!-- 시작페이지 + 7 -->
+				<a href="main?PageNum=${page.startPage + page.pageSize}">다음페이지</a>	
+				</c:if>  --%>
+				</div>
 			</div>
 			<!-- -----------------------------------------------검색 하는곳 끝 --------------------------------------------------------- -->
 

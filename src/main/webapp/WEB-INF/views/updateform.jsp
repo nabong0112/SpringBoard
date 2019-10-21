@@ -67,7 +67,7 @@ $(function(){//에디터를 사용하기위한 함수
 	<!-- 헤더 안에는 로그인,로그아웃,내정보 자바스크립트랑 로그인정보가 담겨있음 -->
 		<%@ include file="include/header.jsp"%>
 		<div align="center" style="line-height: 2.3em">
-			<form id="frm" method="post" action="updateCheck?boardNo=${list.boardNo}">
+			<form id="frm" method="post" action="updateCheck?boardNo=${list.boardNo}&boardType=${boardType}">
 				<input type="hidden" name="boardType" value="${boardType}">
 				<h2>게시글 수정</h2>
 				<fieldset style="width: 70%; height: 90%;">
